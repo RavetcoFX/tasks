@@ -32,7 +32,12 @@ public class Tasks.TaskRow : Gtk.ListBoxRow {
 
         var check = new Gtk.CheckButton ();
         check.active = completed;
-        check.sensitive = false;
+        check.toggled.connect (() => {
+            completed = check.active;
+
+            // this throws a Segmentation fault. Why?
+            component.set_status(completed ? ICal.PropertyStatus.COMPLETED : ICal.PropertyStatus.NONE);
+        });
 
         var label = new Gtk.Label (component.get_summary ());
         label.wrap = true;
