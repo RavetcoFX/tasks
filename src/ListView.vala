@@ -119,6 +119,7 @@ public class Tasks.ListView : Gtk.Grid {
     private void on_objects_added (E.Source source, ECal.Client client, SList<unowned ICal.Component> objects) {
         objects.foreach ((component) => {
             var task_row = new Tasks.TaskRow (component);
+            task_row.component_update.connect ((component) => on_component_update (component, client));
             task_list.add (task_row);
         });
 
@@ -137,5 +138,20 @@ public class Tasks.ListView : Gtk.Grid {
         }
 
         return 0;
+    }
+
+    private void on_component_update (ICal.Component component, ECal.Client client) {
+        debug ("on_component_update:component.uid = '" + component.get_uid () + "'");
+#if E_CAL_2_0
+        client.modify_object.begin (component, ECal.ObjModType.ALL, ECal.OperationFlags.NONE, null, (obj, results) => {
+#else
+        client.modify_object.begin (component, ECal.ObjModType.ALL, null, (obj, results) => {
+#endif
+            try {
+                client.modify_object.end (results);
+            } catch (Error e) {
+                warning (e.message);
+            }
+        });
     }
 }

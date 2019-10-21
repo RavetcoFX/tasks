@@ -20,6 +20,7 @@
 
 public class Tasks.TaskRow : Gtk.ListBoxRow {
     public unowned ICal.Component component { get; construct; }
+    public signal void component_update (ICal.Component component);
 
     public bool completed { get; private set; }
 
@@ -28,15 +29,16 @@ public class Tasks.TaskRow : Gtk.ListBoxRow {
     }
 
     construct {
+        debug ("construct:component.uid = '" + component.get_uid () + "'");
         completed = component.get_status () == ICal.PropertyStatus.COMPLETED;
 
         var check = new Gtk.CheckButton ();
         check.active = completed;
         check.toggled.connect (() => {
+            debug ("signal:component.uid = '" + component.get_uid () + "'");
             completed = check.active;
-
-            // this throws a Segmentation fault. Why?
             component.set_status(completed ? ICal.PropertyStatus.NONE : ICal.PropertyStatus.COMPLETED);
+            component_update (component);
         });
 
         var summary_label = new Gtk.Label (component.get_summary ());
