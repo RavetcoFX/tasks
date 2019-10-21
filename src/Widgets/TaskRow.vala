@@ -36,7 +36,7 @@ public class Tasks.TaskRow : Gtk.ListBoxRow {
             completed = check.active;
 
             // this throws a Segmentation fault. Why?
-            component.set_status(completed ? ICal.PropertyStatus.COMPLETED : ICal.PropertyStatus.NONE);
+            component.set_status(completed ? ICal.PropertyStatus.NONE : ICal.PropertyStatus.COMPLETED);
         });
 
         var label = new Gtk.Label (component.get_summary ());
