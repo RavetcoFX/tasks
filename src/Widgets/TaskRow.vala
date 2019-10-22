@@ -50,6 +50,13 @@ public class Tasks.TaskRow : Gtk.ListBoxRow {
         check.margin_top = 2;
         check.valign = Gtk.Align.START;
 
+        key_release_event.connect ((event) => {
+            // SPACE == 32
+            if (event.keyval == 32) {
+                check.active = !check.active;
+            }
+        });
+
         var summary_label = new Gtk.Label (component.get_summary ());
         summary_label.justify = Gtk.Justification.LEFT;
         summary_label.wrap = true;
