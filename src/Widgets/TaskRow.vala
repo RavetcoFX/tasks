@@ -20,7 +20,9 @@
 
 public class Tasks.TaskRow : Gtk.ListBoxRow {
     public E.Source source { get; construct; }
+
     public Tasks.TaskModel model { get; construct; }
+    public signal void changed (Tasks.TaskModel model);
 
     private static Gtk.CssProvider taskrow_provider;
 
@@ -118,6 +120,13 @@ public class Tasks.TaskRow : Gtk.ListBoxRow {
                 task_popover.constrain_to = Gtk.PopoverConstraint.NONE;
                 task_popover.position = Gtk.PositionType.LEFT;
                 task_popover.set_relative_to (check);
+
+                task_popover.closed.connect(() => {
+                    if (model.has_changed ()) {
+                        changed (model);
+                        model.update_snapshot ();
+                    }
+                });
                 task_popover.popup ();
 
             } else if (!is_selected () && event.type == Gdk.EventType.BUTTON_PRESS) {

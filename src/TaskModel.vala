@@ -18,27 +18,30 @@
 *
 */
 
-public struct Tasks.TaskModel {
+public class Tasks.TaskModel : GLib.Object {
     public TaskModel? snapshot { get; private set; }
 
-    public string? uid { get; private set; }
+    public string? uid { get; construct; }
+    public string? rid { get; construct; }
 
     public string? summary;
     public string? description;
     public ICal.PropertyStatus? status;
     public GLib.DateTime? due;
 
-    public TaskModel (string? uid) {
-        this.uid = uid;
+    public TaskModel (string? uid, string? rid) {
+        Object (uid: uid, rid: rid);
     }
 
-    public TaskModel update_snapshot () {
-        this.snapshot = this;
-        return this;
+    public void update_snapshot () {
+        snapshot = new TaskModel(uid, rid);
+        snapshot.summary = summary;
+        snapshot.description = description;
+        snapshot.status = status;
+        snapshot.due = due;
     }
 
     public bool has_changed () {
-        debug ("summary = " + summary + ", snapshot.summary = " + snapshot.summary);
         return snapshot != null && (
             uid != snapshot.uid ||
             summary != snapshot.summary ||

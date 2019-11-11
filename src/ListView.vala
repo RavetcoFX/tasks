@@ -118,12 +118,39 @@ public class Tasks.ListView : Gtk.Grid {
 
     private void on_objects_added (E.Source source, ECal.Client client, SList<unowned ICal.Component> objects) {
         objects.foreach ((component) => {
-            var task_row = new Tasks.TaskRow (source, Tasks.TaskModel (component.get_uid ()) {
-                summary = component.get_summary (),
-                description = component.get_description (),
-                status = component.get_status (),
-                due = Tasks.TaskModel.ical_time_to_glib_datetime (component.get_due ())
-            }.update_snapshot());
+            var task_model = new Tasks.TaskModel (component.get_uid (), component.get_relcalid ());
+            task_model.summary = component.get_summary ();
+            task_model.description = component.get_description ();
+            task_model.status = component.get_status ();
+            task_model.due = Tasks.TaskModel.ical_time_to_glib_datetime (component.get_due ());
+            task_model.update_snapshot ();
+
+            var task_row = new Tasks.TaskRow (source, task_model);
+            task_row.changed.connect((task_model) => {
+                try {
+                    ICal.Component changed_component;
+                    client.get_object_sync (task_model.uid, task_model.rid, out changed_component, null);
+
+                    changed_component.set_summary (task_model.summary);
+                    changed_component.set_description (task_model.description);
+                    changed_component.set_status (task_model.status);
+
+#if E_CAL_2_0
+                    client.modify_object.begin (changed_component, ECal.ObjModType.ALL, ECal.OperationFlags.NONE, null, (obj, results) => {
+#else
+                    client.modify_object.begin (changed_component, ECal.ObjModType.ALL, null, (obj, results) => {
+#endif
+                        try {
+                            client.modify_object.end (results);
+                        } catch (Error e) {
+                            warning (e.message);
+                        }
+                    });
+
+                } catch (Error e) {
+                    critical (e.message);
+                }
+            });
             task_list.add (task_row);
         });
 
