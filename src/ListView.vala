@@ -123,7 +123,7 @@ public class Tasks.ListView : Gtk.Grid {
                 description = component.get_description (),
                 status = component.get_status (),
                 due = Tasks.TaskModel.ical_time_to_glib_datetime (component.get_due ())
-            });
+            }.update_snapshot());
             task_list.add (task_row);
         });
 

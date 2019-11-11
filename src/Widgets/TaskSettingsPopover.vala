@@ -102,6 +102,10 @@ public class Tasks.TaskSettingsPopover : Gtk.Popover {
             due_datetimepicker.hide ();
         }
 
+        summary_entry.changed.connect(() => {
+            model.summary = summary_entry.text;
+        });
+
         due_button.button_release_event.connect (() => {
             var previous_active = due_switch.active;
             due_switch.activate ();
@@ -117,6 +121,7 @@ public class Tasks.TaskSettingsPopover : Gtk.Popover {
         });
 
         done_button.button_release_event.connect (() => {
+            debug ("model.has_changed: " + (model.has_changed () ? "true" : "false" ));
             popdown ();
             return Gdk.EVENT_STOP;
         });

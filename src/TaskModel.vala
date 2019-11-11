@@ -19,6 +19,8 @@
 */
 
 public struct Tasks.TaskModel {
+    public TaskModel? snapshot { get; private set; }
+
     public string? uid { get; private set; }
 
     public string? summary;
@@ -28,6 +30,22 @@ public struct Tasks.TaskModel {
 
     public TaskModel (string? uid) {
         this.uid = uid;
+    }
+
+    public TaskModel update_snapshot () {
+        this.snapshot = this;
+        return this;
+    }
+
+    public bool has_changed () {
+        debug ("summary = " + summary + ", snapshot.summary = " + snapshot.summary);
+        return snapshot != null && (
+            uid != snapshot.uid ||
+            summary != snapshot.summary ||
+            description != snapshot.description ||
+            status != snapshot.status ||
+            due != snapshot.due
+        );
     }
 
     public bool is_completed () {
